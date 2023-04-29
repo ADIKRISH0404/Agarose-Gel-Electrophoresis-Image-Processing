@@ -12,6 +12,37 @@ function pos = boxFinder(im)
             end
         end
     end
+import matplotlib.pyplot as plt
+from matplotlib.widgets import RectangleSelector
+
+def annotate_gel_image(image_path):
+    # Load the image
+    img = plt.imread(image_path)
+
+    # Define a function to annotate the selected region
+    def onselect(eclick, erelease):
+        global x1, y1, x2, y2
+        x1, y1 = int(eclick.xdata), int(eclick.ydata)
+        x2, y2 = int(erelease.xdata), int(erelease.ydata)
+        print(f"Selected region: ({x1}, {y1}) to ({x2}, {y2})")
+
+    # Define a function to save the selected region
+    def onsave(event):
+        global x1, y1, x2, y2
+        selected_region = img[y1:y2, x1:x2]
+        plt.imsave(f"annotated_{image_path}", selected_region, cmap='gray')
+        print(f"Selected region saved as annotated_{image_path}")
+
+    # Display the image and set up the rectangle selector
+    fig, ax = plt.subplots()
+    ax.imshow(img, cmap='gray')
+    rs = RectangleSelector(ax, onselect, drawtype='box', useblit=True, button=[1], minspanx=5, minspany=5,
+                           spancoords='pixels', interactive=True)
+    fig.canvas.mpl_connect('key_press_event', onsave)
+    plt.show()
+
+# Example usage
+annotate_gel_image("gel_image.png")
 
     for i = 1:size(im,1);
         for j = 1:size(im,2);
